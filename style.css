@@ -1,0 +1,224 @@
+@import url('https://fonts.googleapis.com/c ss2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --bg: black;
+    --shell: #1C1712;
+    --surface: #251F19;
+    --accent: #E3A542;
+    --text: #F3ECE1;
+    --text-muted: grey;
+    --hairline: rgba(243, 236, 225, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    height: 100vh;
+    background: radial-gradient(circle at 30% 20%, #251E17 0%, var(--bg) 55%);
+    display: flex;
+    justify-content: center;
+}
+
+body {
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    margin: 0 auto;
+    background: var(--shell);
+    box-shadow: 0 0 0 1px var(--hairline);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 24px 32px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    overflow-y: auto;
+}
+
+/* App wordmark — generated purely in CSS so your HTML doesn't need to change */
+body::before {
+    content: '● Sleeve';
+    font-family: 'Fraunces', serif;
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--text);
+    margin-bottom: 22px;
+}
+
+#search {
+    display: flex;
+    gap: 8px;
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 6px;
+    margin: 0 0 20px;
+    border: 1px solid var(--hairline);
+}
+
+#searchInput {
+    flex: 1;
+    height: 42px;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    padding: 0 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    outline: none;
+}
+
+#searchInput::placeholder {
+    color: var(--text-muted);
+}
+
+#searchButton {
+    height: 42px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #1C1712;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+}
+
+#searchButton:hover { filter: brightness(1.08); }
+#searchButton:active { filter: brightness(0.94); }
+
+#searchInput:focus-visible,
+#searchButton:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Artwork panel, with a vinyl disc peeking out behind the sleeve */
+#border {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--surface);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+#border::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -18%;
+    width: 70%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle at center, #14100C 0 2px, #1A1510 2px 4px);
+    transform: translateY(-50%);
+    opacity: 0.5;
+    z-index: 0;
+}
+
+#border img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: reveal 0.35s ease;
+}
+
+#border p {
+    position: relative;
+    z-index: 1;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+@keyframes reveal {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #border img { animation: none; }
+}
+
+/* Track details panel */
+#result {
+    position: relative;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 18px 20px 18px 24px;
+    min-height: 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+#result::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--accent);
+}
+
+#result h2 {
+    margin: 0 0 4px;
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+#result p {
+    margin: 2px 0;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.loading-text,
+.empty-text {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* Full-song video embed — hidden until a matching YouTube video is found */
+#videoContainer {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--surface);
+    margin-bottom: 16px;
+    display: none;
+}
+
+#videoContainer iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* Audio preview player — only shown as a fallback when no full song is found */
+#player {
+    width: 100%;
+    display: none;
+    border-radius: 10px;
+}
+
+@media (max-width: 380px) {
+    body { padding: 22px 18px 26px; }
+}
