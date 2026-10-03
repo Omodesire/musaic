@@ -86,7 +86,7 @@ async function getInfo(rawQuery) {
         } else {
             // A bare song title is ambiguous — tons of artists cover the same
             // songs — so let the person choose which one they meant
-            const choices = dedupeRecordings(data.recordings).slice(0, 5);
+            const choices = sortByPopularity(dedupeRecordings(data.recordings)).slice(0, 5);
 
             if (choices.length === 1) {
                 selectSong(choices[0]);
@@ -128,6 +128,19 @@ function dedupeRecordings(recordings) {
     }
 
     return unique;
+}
+
+// MusicBrainz has no real popularity or play-count data — it's a reference
+// database, not a streaming service. The closest honest stand-in available
+// is how many releases a recording appears on (original album, reissues,
+// compilations, live albums...): a song that's circulated widely tends to
+// show up on more releases than an obscure one-off version.
+function sortByPopularity(songs) {
+    return [...songs].sort((a, b) => {
+        const releaseCountA = a.releases ? a.releases.length : 0;
+        const releaseCountB = b.releases ? b.releases.length : 0;
+        return releaseCountB - releaseCountA; // most releases first
+    });
 }
 
 // Shows a short list of candidate songs in the bottom container and lets

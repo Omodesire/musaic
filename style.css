@@ -167,7 +167,6 @@ body::before {
 /* Track details panel */
 #result {
     position: relative;
-    min-width: 0;
     background: var(--surface);
     border-radius: 16px;
     padding: 18px 20px 18px 24px;
@@ -176,7 +175,6 @@ body::before {
     flex-direction: column;
     justify-content: flex-start;
     margin-bottom: 16px;
-    overflow-wrap: anywhere;
 }
 
 #result::before {
@@ -391,22 +389,6 @@ body::before {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    max-height: 132px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-}
-
-.song-choices li {
-    min-height: 58px;
-    min-width: 0;
-}
-
-.choice-title,
-.choice-artist {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .song-choice {
