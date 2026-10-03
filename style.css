@@ -38,7 +38,7 @@ body {
 
 /* App wordmark — generated purely in CSS so your HTML doesn't need to change */
 body::before {
-    content: '● Soundscroll';
+    content: '● Soundsscroll';
     font-family: 'Fraunces', serif;
     font-size: 21px;
     font-weight: 600;
@@ -167,14 +167,16 @@ body::before {
 /* Track details panel */
 #result {
     position: relative;
+    min-width: 0;
     background: var(--surface);
     border-radius: 16px;
     padding: 18px 20px 18px 24px;
     min-height: 96px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     margin-bottom: 16px;
+    overflow-wrap: anywhere;
 }
 
 #result::before {
@@ -219,6 +221,10 @@ body::before {
     color: var(--accent);
     text-decoration: none;
     width: fit-content;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
 }
 
 .lyrics-link:hover {
@@ -228,6 +234,58 @@ body::before {
 .lyrics-link::after {
     content: '↗';
     font-size: 12px;
+}
+
+.media-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.media-label::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+.song-choices {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+}
+
+.song-choices li {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.song-choices li:hover {
+    background: rgba(227, 165, 66, 0.12);
+}
+
+.choice-title {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.choice-artist {
+    font-size: 13px;
+    color: var(--text-muted);
 }
 
 /* Full-song video embed — hidden until a matching YouTube video is found */
@@ -317,6 +375,142 @@ body::before {
     color: var(--text-muted);
     text-align: center;
     margin: -8px 0 16px;
+}
+
+/* Shown when a search has no artist specified and matches more than one song */
+.choices-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0 0 10px;
+}
+
+.song-choices {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 132px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.song-choices li {
+    min-height: 58px;
+    min-width: 0;
+}
+
+.choice-title,
+.choice-artist {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.song-choice {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 10px;
+    background: var(--shell);
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.15s ease;
+}
+
+.song-choice:hover {
+    background: rgba(227, 165, 66, 0.14);
+}
+
+.choice-title {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.choice-artist {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Lyrics modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 13, 11, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+}
+
+.modal-overlay[hidden] {
+    display: none;
+}
+
+.modal-box {
+    width: 100%;
+    max-width: 380px;
+    max-height: 80vh;
+    background: var(--shell);
+    border-radius: 20px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--hairline);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--hairline);
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text);
+}
+
+.modal-header button {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-box .lyrics-link {
+    margin: 12px 18px 0;
+}
+
+.modal-frame {
+    flex: 1;
+    min-height: 320px;
+    overflow: hidden;
+}
+
+.modal-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: var(--surface);
 }
 
 @media (max-width: 380px) {

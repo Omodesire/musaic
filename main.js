@@ -16,6 +16,11 @@ const timeDisplay = document.getElementById('timeDisplay');
 const player = document.getElementById('player');  // 30-second fallback preview (hidden, controlled by the UI above)
 const previewNote = document.getElementById('previewNote'); // clarifies preview vs. full song
 
+const lyricsModal = document.getElementById('lyricsModal');
+const lyricsFrame = document.getElementById('lyricsFrame');
+const lyricsExternalLink = document.getElementById('lyricsExternalLink');
+const closeLyricsModal = document.getElementById('closeLyricsModal');
+
 search.addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -74,18 +79,90 @@ async function getInfo(rawQuery) {
             return;
         }
 
-        // Always use the top (best-matching) song
-        const topSong = data.recordings[0];
+        if (artistName) {
+            // The search already named an artist, so this is precise enough
+            // to go straight to the top match
+            selectSong(data.recordings[0]);
+        } else {
+            // A bare song title is ambiguous — tons of artists cover the same
+            // songs — so let the person choose which one they meant
+            const choices = dedupeRecordings(data.recordings).slice(0, 5);
 
-        displaySongDetails(topSong); // bottom container
-        loadArtwork(topSong);        // top container
-        loadFullSong(topSong);       // full song via YouTube, falls back to 30s preview
+            if (choices.length === 1) {
+                selectSong(choices[0]);
+            } else {
+                showSongChoices(choices);
+            }
+        }
 
     } catch (error) {
         console.error('Error fetching data:', error);
         result.innerHTML = '<p class="empty-text">Something went wrong. Please try again.</p>';
         showDefaultArtwork();
     }
+}
+
+// Loads one specific song into all three panels — this is the single place
+// that "finalizes" a choice, whether it came from an exact match or a pick-list click
+function selectSong(song) {
+    displaySongDetails(song); // bottom container
+    loadArtwork(song);        // top container
+    loadFullSong(song);       // full song via YouTube, falls back to 30s preview
+}
+
+// MusicBrainz often returns the same song multiple times (once per release
+// it appeared on). This keeps only the first occurrence of each
+// title + artist combination, so the pick-list doesn't repeat itself.
+function dedupeRecordings(recordings) {
+    const seen = new Set();
+    const unique = [];
+
+    for (const song of recordings) {
+        const artist = song['artist-credit'] ? song['artist-credit'][0].name : '';
+        const key = `${song.title}::${artist}`.toLowerCase();
+
+        if (!seen.has(key)) {
+            seen.add(key);
+            unique.push(song);
+        }
+    }
+
+    return unique;
+}
+
+// Shows a short list of candidate songs in the bottom container and lets
+// the person click the one they meant
+function showSongChoices(songs) {
+    showDefaultArtwork();
+    videoContainer.style.display = 'none';
+    playerCard.style.display = 'none';
+    previewNote.style.display = 'none';
+
+    const items = songs.map((song, index) => {
+        const title = song.title || 'Unknown title';
+        const artist = song['artist-credit']
+            ? song['artist-credit'][0].name
+            : 'Unknown artist';
+
+        return `
+            <li data-index="${index}">
+                <span class="choice-title">${title}</span>
+                <span class="choice-artist">${artist}</span>
+            </li>
+        `;
+    }).join('');
+
+    result.innerHTML = `
+        <div class="media-label">Choose a song</div>
+        <ul class="song-choices">${items}</ul>
+    `;
+
+    result.querySelectorAll('.song-choices li').forEach(function (li) {
+        li.addEventListener('click', function () {
+            const index = Number(li.dataset.index);
+            selectSong(songs[index]);
+        });
+    });
 }
 
 function displaySongDetails(song) {
@@ -104,9 +181,42 @@ function displaySongDetails(song) {
         <h2>${title}</h2>
         <p>Artist: ${artist}</p>
         <p>First released: ${releaseDate}</p>
-        <a class="lyrics-link" href="${lyricsUrl}" target="_blank" rel="noopener noreferrer">View lyrics</a>
+        <button class="lyrics-link" type="button">View lyrics</button>
     `;
+
+    result.querySelector('.lyrics-link').addEventListener('click', function () {
+        openLyricsModal(lyricsUrl);
+    });
 }
+
+// Opens the lyrics modal and loads Genius's own official page inside it.
+// We never extract or store lyrics text ourselves — this just displays
+// their licensed page, the same way embedding a YouTube video does.
+function openLyricsModal(url) {
+    lyricsExternalLink.href = url;
+    lyricsFrame.src = url;
+    lyricsModal.hidden = false;
+}
+
+function hideLyricsModal() {
+    lyricsModal.hidden = true;
+    lyricsFrame.src = ''; // stop loading/playing anything once closed
+}
+
+closeLyricsModal.addEventListener('click', hideLyricsModal);
+
+// Clicking the dark backdrop (not the modal box itself) also closes it
+lyricsModal.addEventListener('click', function (e) {
+    if (e.target === lyricsModal) {
+        hideLyricsModal();
+    }
+});
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !lyricsModal.hidden) {
+        hideLyricsModal();
+    }
+});
 
 // Shown whenever no real cover art could be found — a simple drawn
 // vinyl record instead of a broken image or plain text

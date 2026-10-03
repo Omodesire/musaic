@@ -23,6 +23,20 @@
         <audio id="player"></audio>
     </div>
     <p id="previewNote"></p>
+
+    <div id="lyricsModal" class="modal-overlay" hidden>
+        <div class="modal-box">
+            <div class="modal-header">
+                <span>Lyrics</span>
+                <button id="closeLyricsModal" type="button" aria-label="Close lyrics">✕</button>
+            </div>
+            <a id="lyricsExternalLink" class="lyrics-link" href="#" target="_blank" rel="noopener noreferrer">Open on Genius</a>
+            <div class="modal-frame">
+                <iframe id="lyricsFrame" src="" title="Lyrics on Genius"></iframe>
+            </div>
+        </div>
+    </div>
+
     <script src="main.js"></script>
 </body>
 </html>
