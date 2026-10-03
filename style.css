@@ -38,7 +38,7 @@ body {
 
 /* App wordmark — generated purely in CSS so your HTML doesn't need to change */
 body::before {
-    content: '● Sleeve';
+    content: '● Soundscroll';
     font-family: 'Fraunces', serif;
     font-size: 21px;
     font-weight: 600;
