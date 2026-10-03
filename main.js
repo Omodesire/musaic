@@ -8,7 +8,13 @@ const searchButton = document.getElementById('searchButton');
 const result = document.getElementById('result'); // song details
 const border = document.getElementById('border');  // artwork
 const videoContainer = document.getElementById('videoContainer'); // full song
-const player = document.getElementById('player');  // 30-second fallback preview
+const playerCard = document.getElementById('playerCard');         // custom player UI
+const playButton = document.getElementById('playButton');
+const progressTrack = document.getElementById('progressTrack');
+const progressFill = document.getElementById('progressFill');
+const timeDisplay = document.getElementById('timeDisplay');
+const player = document.getElementById('player');  // 30-second fallback preview (hidden, controlled by the UI above)
+const previewNote = document.getElementById('previewNote'); // clarifies preview vs. full song
 
 search.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -53,8 +59,9 @@ async function getInfo(rawQuery) {
     border.innerHTML = '';
     videoContainer.innerHTML = '';
     videoContainer.style.display = 'none';
-    player.style.display = 'none';
+    playerCard.style.display = 'none';
     player.removeAttribute('src');
+    previewNote.style.display = 'none';
 
     try {
         const response = await fetch(url);
@@ -63,7 +70,7 @@ async function getInfo(rawQuery) {
 
         if (!data.recordings || data.recordings.length === 0) {
             result.innerHTML = '<p class="empty-text">No results found.</p>';
-            border.innerHTML = '<p class="empty-text">No artwork available.</p>';
+            showDefaultArtwork();
             return;
         }
 
@@ -77,7 +84,7 @@ async function getInfo(rawQuery) {
     } catch (error) {
         console.error('Error fetching data:', error);
         result.innerHTML = '<p class="empty-text">Something went wrong. Please try again.</p>';
-        border.innerHTML = '<p class="empty-text">No artwork available.</p>';
+        showDefaultArtwork();
     }
 }
 
@@ -88,10 +95,34 @@ function displaySongDetails(song) {
         : 'Unknown artist';
     const releaseDate = song['first-release-date'] || 'Unknown release date';
 
+    // Link out to the official lyrics page rather than displaying lyrics
+    // text directly — lyrics are licensed content, and genius.com is where
+    // they're actually authorized to be published
+    const lyricsUrl = `https://genius.com/search?q=${encodeURIComponent(`${title} ${artist}`)}`;
+
     result.innerHTML = `
         <h2>${title}</h2>
         <p>Artist: ${artist}</p>
         <p>First released: ${releaseDate}</p>
+        <a class="lyrics-link" href="${lyricsUrl}" target="_blank" rel="noopener noreferrer">View lyrics</a>
+    `;
+}
+
+// Shown whenever no real cover art could be found — a simple drawn
+// vinyl record instead of a broken image or plain text
+function showDefaultArtwork() {
+    border.innerHTML = `
+        <div class="artwork-empty">
+            <svg class="default-cover" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="92" fill="#14100C" />
+                <circle cx="100" cy="100" r="74" fill="none" stroke="#2A241D" stroke-width="2" />
+                <circle cx="100" cy="100" r="56" fill="none" stroke="#2A241D" stroke-width="2" />
+                <circle cx="100" cy="100" r="38" fill="none" stroke="#2A241D" stroke-width="2" />
+                <circle cx="100" cy="100" r="30" fill="#E3A542" />
+                <circle cx="100" cy="100" r="5" fill="#14100C" />
+            </svg>
+            <p>No cover art available</p>
+        </div>
     `;
 }
 
@@ -109,7 +140,7 @@ async function loadArtwork(song) {
     border.innerHTML = '<p class="loading-text">Loading artwork...</p>';
 
     if (!song.releases || song.releases.length === 0) {
-        border.innerHTML = '<p class="empty-text">No artwork available.</p>';
+        showDefaultArtwork();
         return;
     }
 
@@ -129,7 +160,7 @@ async function loadArtwork(song) {
     }
 
     // none of the releases had artwork
-    border.innerHTML = '<p class="empty-text">No artwork available.</p>';
+    showDefaultArtwork();
 }
 
 // Searches YouTube for this song and embeds their official player, so the whole
@@ -197,15 +228,61 @@ async function loadPreview(song) {
         const data = await response.json();
 
         if (data.results && data.results.length > 0 && data.results[0].previewUrl) {
+            // Reset the custom player UI for this new clip
+            playButton.textContent = '▶';
+            progressFill.style.width = '0%';
+            timeDisplay.textContent = '0:00 / 0:00';
+
             player.src = data.results[0].previewUrl;
-            player.style.display = 'block';
+            playerCard.style.display = 'flex';
+            previewNote.textContent = "Full song unavailable — here's a 30-second preview";
+            previewNote.style.display = 'block';
         } else {
-            player.style.display = 'none';
+            playerCard.style.display = 'none';
             player.removeAttribute('src');
         }
     } catch (error) {
         console.error('Error fetching preview:', error);
-        player.style.display = 'none';
+        playerCard.style.display = 'none';
         player.removeAttribute('src');
     }
 }
+
+// Turns a number of seconds into "m:ss" for the time display
+function formatTime(seconds) {
+    if (!isFinite(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
+}
+
+// Wires up the custom player controls once — these elements exist for the
+// whole life of the page, so this only needs to run a single time.
+playButton.addEventListener('click', function () {
+    if (player.paused) {
+        player.play();
+        playButton.textContent = '❚❚';
+    } else {
+        player.pause();
+        playButton.textContent = '▶';
+    }
+});
+
+player.addEventListener('timeupdate', function () {
+    if (!player.duration) return;
+    const percent = (player.currentTime / player.duration) * 100;
+    progressFill.style.width = `${percent}%`;
+    timeDisplay.textContent = `${formatTime(player.currentTime)} / ${formatTime(player.duration)}`;
+});
+
+player.addEventListener('ended', function () {
+    playButton.textContent = '▶';
+    progressFill.style.width = '0%';
+});
+
+progressTrack.addEventListener('click', function (e) {
+    if (!player.duration) return;
+    const rect = progressTrack.getBoundingClientRect();
+    const clickPosition = (e.clientX - rect.left) / rect.width;
+    player.currentTime = clickPosition * player.duration;
+});

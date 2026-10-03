@@ -9,12 +9,20 @@
 <body>
     <form id="search" action="submit">
         <input id="searchInput" type="text" name="username" placeholder="Search for any music, e.g. Yesterday by The Beatles">
-        <button id="searchButton" value="submit" type="submit">Submit</button>
+        <button id="searchButton" value="submit" type="submit">Search</button>
     </form>
     <div id="border"></div>
     <div id="result"></div>
     <div id="videoContainer"></div>
-    <audio id="player" controls></audio>
+    <div id="playerCard">
+        <button id="playButton" type="button" aria-label="Play preview">▶</button>
+        <div id="playerInfo">
+            <div id="progressTrack"><div id="progressFill"></div></div>
+            <div id="timeDisplay">0:00 / 0:00</div>
+        </div>
+        <audio id="player"></audio>
+    </div>
+    <p id="previewNote"></p>
     <script src="main.js"></script>
 </body>
 </html>

@@ -1,12 +1,12 @@
-@import url('https://fonts.googleapis.com/c ss2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-    --bg: black;
+    --bg: #0F0D0B;
     --shell: #1C1712;
     --surface: #251F19;
     --accent: #E3A542;
     --text: #F3ECE1;
-    --text-muted: grey;
+    --text-muted: #97897A;
     --hairline: rgba(243, 236, 225, 0.08);
 }
 
@@ -141,6 +141,20 @@ body::before {
     color: var(--text-muted);
 }
 
+.artwork-empty {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.default-cover {
+    width: 110px;
+    height: 110px;
+}
+
 @keyframes reveal {
     from { opacity: 0; transform: scale(0.98); }
     to { opacity: 1; transform: scale(1); }
@@ -194,6 +208,28 @@ body::before {
     color: var(--text-muted);
 }
 
+.lyrics-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    width: fit-content;
+}
+
+.lyrics-link:hover {
+    text-decoration: underline;
+}
+
+.lyrics-link::after {
+    content: '↗';
+    font-size: 12px;
+}
+
 /* Full-song video embed — hidden until a matching YouTube video is found */
 #videoContainer {
     width: 100%;
@@ -212,11 +248,75 @@ body::before {
     display: block;
 }
 
-/* Audio preview player — only shown as a fallback when no full song is found */
-#player {
-    width: 100%;
+/* Custom audio player — only shown as a fallback when no full song is found.
+   The audio element itself stays hidden; everything visible here is custom-built. */
+#playerCard {
     display: none;
-    border-radius: 10px;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    border: 1px solid var(--hairline);
+}
+
+#playButton {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #1C1712;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: filter 0.15s ease;
+}
+
+#playButton:hover { filter: brightness(1.08); }
+#playButton:active { filter: brightness(0.94); }
+
+#playerInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+#progressTrack {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--hairline);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+#progressFill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 2px;
+}
+
+#timeDisplay {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+#player {
+    display: none; /* native element stays hidden; playerCard is the visible UI */
+}
+
+#previewNote {
+    display: none;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    margin: -8px 0 16px;
 }
 
 @media (max-width: 380px) {
